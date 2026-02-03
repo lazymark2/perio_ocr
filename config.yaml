@@ -1,0 +1,14 @@
+ocr:
+  lang: ch
+  use_gpu: false  # CPU模式（AMD显卡不支持CUDA）
+  det_db_thresh: 0.3
+  det_db_box_thresh: 0.6
+
+paths:
+  input_dir: input/
+  output_dir: output/
+
+processing:
+  enhance_image: true
+  binarize: true
+  denoise: true

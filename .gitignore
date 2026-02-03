@@ -1,0 +1,83 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Project Specific
+PaddleOCR/
+output/
+output_*/
+*.jpg
+*.jpeg
+*.png
+*.pdf
+!docs/**/*.png
+!docs/**/*.jpg
+
+# Data files
+*.txt
+!requirements.txt
+!README.txt
+!docs/**/*.txt
+!*.md
+
+# Excel files
+*.xlsx
+*.xls
+
+# HTML files (downloaded docs)
+*.html
+!docs/**/*.md
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/
+.claude-plans/
+
+# Temporary files
+*_preprocess*.jpg
+*_result.json
+Label.txt
+training_data/
+inference/
+pretrain_models/
+slim/
+
+# Test results
+batch_test/
+preprocessing_test/
