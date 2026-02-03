@@ -41,7 +41,6 @@ class PaddleXOCR:
         self.ocr = PaddleOCR(
             use_angle_cls=use_angle_cls,
             lang=lang,
-            show_log=False,
         )
 
         # 初始化表格识别引擎（PP-Structure）
@@ -49,7 +48,6 @@ class PaddleXOCR:
             try:
                 from paddleocr import PPStructure
                 self.table_engine = PPStructure(
-                    show_log=False,
                     lang=lang,
                     table=True,
                     ocr=True,
@@ -129,7 +127,7 @@ class PaddleXOCR:
     def _fallback_table_detection(self, image: np.ndarray) -> Dict:
         """降级方案：使用基础OCR检测表格"""
         logger.info("使用基础OCR进行表格检测")
-        result = self.ocr.ocr(image, cls=True)
+        result = self.ocr.ocr(image)
 
         cells = []
         if result and result[0]:
@@ -171,7 +169,7 @@ class PaddleXOCR:
 
         processed = self._preprocess_cell(cell_img)
         try:
-            result = self.ocr.ocr(processed, cls=True)
+            result = self.ocr.ocr(processed)
             if result and result[0]:
                 texts = [line[1][0] for line in result[0]]
                 return ' '.join(texts).strip()
