@@ -6,6 +6,41 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 perio_OCR 是一个牙周图表 OCR 数据项目，用于数字化牙科牙周检查数据。支持使用 PaddleOCR 识别手写牙周探诊表格。
 
+## 环境配置
+
+**重要**: 本项目所有库安装和调用操作默认在 conda 环境下进行。
+
+### Conda 环境配置
+
+```bash
+# 创建并激活 conda 环境
+conda create -n perio_ocr python=3.9
+conda activate perio_ocr
+
+# 所有 pip install 和 python 命令都在此环境下执行
+pip install paddlepaddle paddleocr opencv-python numpy pandas pyyaml
+```
+
+### 环境路径
+
+- **Conda 环境**: `C:\Users\lazymark2\miniforge3\envs\perio_ocr`
+- **Python 可执行文件**: `C:\Users\lazymark2\miniforge3\envs\perio_ocr\python.exe`
+- **PaddleOCR 源码路径**: `C:\Users\lazymark2\miniforge3\envs\perio_ocr\Lib\site-packages\paddleocr\`
+
+### Bash 命令执行
+
+所有 Python 相关的 bash 命令都应使用 conda run 前缀：
+
+```bash
+# 推荐方式：使用 conda run
+conda run -n perio_ocr python main.py --image handwrite.jpg
+conda run -n perio_ocr pip install <package>
+
+# 或者先激活环境再执行
+conda activate perio_ocr
+python main.py --image handwrite.jpg
+```
+
 ## 文件说明
 
 | 文件 | 说明 |
@@ -32,12 +67,31 @@ ocr_system/
 
 ## 启动命令
 
+### 推荐方式：使用统一主程序
+
 ```bash
 # 创建conda环境
 conda create -n perio_ocr python=3.9
 conda activate perio_ocr
 pip install paddlepaddle paddleocr opencv-python numpy pandas pyyaml
 
+# 运行OCR (单张) - 使用新的统一入口
+python main.py --image handwrite.jpg
+
+# 指定输出文件
+python main.py --image handwrite.jpg --output result.json
+
+# 选择OCR模式
+python main.py --image handwrite.jpg --mode enhanced  # 增强模式（推荐手写）
+python main.py --image handwrite.jpg --mode rapid     # 快速模式
+
+# 调试模式
+python main.py --image handwrite.jpg --debug --visualize
+```
+
+### 旧版启动方式（仍可用）
+
+```bash
 # 运行OCR (单张)
 python run_ocr.py --image handwrite.jpg
 
@@ -46,6 +100,17 @@ python run_ocr.py --batch input_images/
 ```
 
 **注意**: 使用CPU模式（AMD显卡不支持CUDA）
+
+## 统一主程序 (main.py)
+
+项目提供统一的主程序入口 `main.py`，整合所有 OCR 模块：
+
+- **支持的模式**: `auto`, `rapid`, `enhanced`, `paddlex`, `modular`
+- **统一接口**: 一个入口处理所有 OCR 任务
+- **简单易用**: 最少的参数，合理的默认值
+- **清晰输出**: 结构化的 JSON 输出格式
+
+详细文档请参考: `docs/MAIN_MODULE.md`
 
 ## 牙周数据结构
 
