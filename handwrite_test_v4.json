@@ -1,0 +1,304 @@
+{
+  "teeth_data": {
+    "48": {
+      "tooth": 1,
+      "mobility": 0,
+      "furcation": 0,
+      "pd": {
+        "b": 0,
+        "l": 0
+      },
+      "gm": {
+        "b": 0,
+        "l": 0
+      },
+      "bop": {
+        "b": 0,
+        "l": 0
+      },
+      "pi": {
+        "b": 0,
+        "l": 0
+      }
+    },
+    "44": {
+      "tooth": 1,
+      "mobility": 0,
+      "furcation": 0,
+      "pd": {
+        "b": 0,
+        "l": 0
+      },
+      "gm": {
+        "b": 0,
+        "l": 0
+      },
+      "bop": {
+        "b": 0,
+        "l": 0
+      },
+      "pi": {
+        "b": 1,
+        "l": 0
+      }
+    },
+    "45": {
+      "tooth": 1,
+      "mobility": 0,
+      "furcation": 0,
+      "pd": {
+        "b": 0,
+        "l": 0
+      },
+      "gm": {
+        "b": 0,
+        "l": 0
+      },
+      "bop": {
+        "b": 0,
+        "l": 0
+      },
+      "pi": {
+        "b": 1,
+        "l": 0
+      }
+    },
+    "47": {
+      "tooth": 1,
+      "mobility": 0,
+      "furcation": 0,
+      "pd": {
+        "b": 0,
+        "l": 0
+      },
+      "gm": {
+        "b": 0,
+        "l": 0
+      },
+      "bop": {
+        "b": 1,
+        "l": 0
+      },
+      "pi": {
+        "b": 0,
+        "l": 0
+      }
+    },
+    "46": {
+      "tooth": 1,
+      "mobility": 0,
+      "furcation": 0,
+      "pd": {
+        "b": 2.0,
+        "l": 0
+      },
+      "gm": {
+        "b": 0,
+        "l": 0
+      },
+      "bop": {
+        "b": 0,
+        "l": 0
+      },
+      "pi": {
+        "b": 0,
+        "l": 0
+      }
+    }
+  },
+  "regions": {
+    "upper": {
+      "pd_region": {
+        "label": "PD",
+        "type": "number",
+        "rows": [
+          126,
+          151
+        ],
+        "bbox": [
+          0,
+          113,
+          3072,
+          223
+        ],
+        "y_range": [
+          113,
+          223
+        ]
+      },
+      "bop_region": {
+        "label": "BOP",
+        "type": "symbol",
+        "rows": [
+          139
+        ],
+        "bbox": [
+          0,
+          139,
+          3072,
+          199
+        ],
+        "y_range": [
+          139,
+          199
+        ]
+      },
+      "pi_region": {
+        "label": "PI",
+        "type": "roman",
+        "rows": [
+          103
+        ],
+        "bbox": [
+          0,
+          103,
+          3072,
+          163
+        ],
+        "y_range": [
+          103,
+          163
+        ]
+      },
+      "furcation_region": {
+        "label": "Furcation",
+        "type": "roman",
+        "rows": [
+          127
+        ],
+        "bbox": [
+          0,
+          127,
+          3072,
+          187
+        ],
+        "y_range": [
+          127,
+          187
+        ]
+      },
+      "mobility_region": {
+        "label": "Mobility",
+        "type": "roman",
+        "rows": [
+          93
+        ],
+        "bbox": [
+          0,
+          93,
+          3072,
+          153
+        ],
+        "y_range": [
+          93,
+          153
+        ]
+      }
+    },
+    "lower": {
+      "pd_region": {
+        "label": "PD",
+        "type": "number",
+        "rows": [],
+        "bbox": [
+          0,
+          2742,
+          3072,
+          2803
+        ],
+        "y_range": [
+          2742,
+          2803
+        ],
+        "using_default": true
+      },
+      "bop_region": {
+        "label": "BOP",
+        "type": "symbol",
+        "rows": [
+          263,
+          196
+        ],
+        "bbox": [
+          0,
+          162,
+          3072,
+          356
+        ],
+        "y_range": [
+          162,
+          356
+        ]
+      },
+      "pi_region": {
+        "label": "PI",
+        "type": "roman",
+        "rows": [
+          251
+        ],
+        "bbox": [
+          0,
+          251,
+          3072,
+          311
+        ],
+        "y_range": [
+          251,
+          311
+        ]
+      },
+      "furcation_region": {
+        "label": "Furcation",
+        "type": "roman",
+        "rows": [
+          255
+        ],
+        "bbox": [
+          0,
+          255,
+          3072,
+          315
+        ],
+        "y_range": [
+          255,
+          315
+        ]
+      },
+      "mobility_region": {
+        "label": "Mobility",
+        "type": "roman",
+        "rows": [
+          257
+        ],
+        "bbox": [
+          0,
+          257,
+          3072,
+          317
+        ],
+        "y_range": [
+          257,
+          317
+        ]
+      }
+    },
+    "separator_y": 168
+  },
+  "statistics": {
+    "total_teeth": 5,
+    "teeth_with_pd": 1,
+    "teeth_with_bop": 1,
+    "teeth_with_pi": 2,
+    "teeth_with_furcation": 0,
+    "teeth_with_mobility": 0
+  },
+  "metadata": {
+    "processing_time": 74.85,
+    "method": "EnhancedPerioOCR",
+    "timestamp": "2026-02-03T11:36:51.126005",
+    "image_path": "handwrite.jpg",
+    "mode": "enhanced",
+    "preprocessing_enabled": true,
+    "postprocess_enabled": true
+  }
+}

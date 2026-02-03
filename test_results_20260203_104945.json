@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-02-03T10:49:41.718423",
+  "tests": [
+    {
+      "name": "导入 TableLineDetector",
+      "passed": true,
+      "details": "模块导入成功",
+      "data": null
+    },
+    {
+      "name": "读取测试图像",
+      "passed": true,
+      "details": "图像尺寸: (4096, 3072, 3)",
+      "data": null
+    },
+    {
+      "name": "创建 TableLineDetector",
+      "passed": true,
+      "details": "检测器初始化成功",
+      "data": null
+    },
+    {
+      "name": "图像预处理",
+      "passed": true,
+      "details": "二值化图像形状: (4096, 3072)",
+      "data": null
+    },
+    {
+      "name": "水平线检测",
+      "passed": true,
+      "details": "检测到 58 条水平线",
+      "data": {
+        "count": 58,
+        "lines": [
+          [
+            

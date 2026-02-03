@@ -83,6 +83,7 @@ class RegionDetector:
             raise ValueError(f"无法读取图像: {image_path}")
 
         h, w = img.shape[:2]
+        logger.info(f"detect_regions: 读取图像 {image_path}, 尺寸={w}x{h}")
 
         # 使用OCR识别所有文本
         result = self.ocr.predict(img)
@@ -113,28 +114,53 @@ class RegionDetector:
 
         Returns:
             分隔线Y坐标
+
+        注意：页面顶部的说明文字可能包含"牙位"（如"牙位特异性"），
+        这些不是表格分隔线，应该被忽略。只考虑Y坐标在图像中间30%-70%范围内的文本。
         """
         # 查找包含"牙位"的文本
         separator_ys = []
+        min_y = int(img_h * 0.30)  # 忽略顶部30%
+        max_y = int(img_h * 0.70)  # 忽略底部30%
+
         for idx, text in enumerate(texts):
             if '牙位' in text:
                 box = boxes[idx].tolist() if idx < len(boxes) else [0, 0, 0, 0]
                 y_center = int((box[1] + box[3]) // 2)
-                separator_ys.append(y_center)
+
+                # 只考虑图像中间区域的"牙位"
+                if min_y <= y_center <= max_y:
+                    separator_ys.append(y_center)
+                    logger.info(f"找到有效的'牙位'文本: y={y_center}, text=\"{text}\"")
+                else:
+                    logger.info(f"忽略顶/底部的'牙位'文本: y={y_center}, text=\"{text}\"")
 
         if separator_ys:
             # 使用中间位置的"牙位"作为分隔线
             separator_ys.sort()
-            return separator_ys[len(separator_ys) // 2]
+            result = separator_ys[len(separator_ys) // 2]
+            logger.info(f"使用检测到的分隔线: y={result}")
+            return result
 
-        # 如果没有找到"牙位"，使用图像中点
-        return img_h // 2
+        # 如果没有找到有效的"牙位"，使用图像中点
+        default_separator = img_h // 2
+        logger.info(f"未检测到有效的'牙位'标签，使用默认分隔线: y={default_separator} (图像高度={img_h})")
+        return default_separator
 
     def _analyze_layout_with_separator(self, texts: List[str], boxes: np.ndarray,
                                        img_w: int, img_h: int, separator_y: int) -> Dict:
         """
         分析表格布局，识别上下半部分的不同数据类型区域
+
+        注意：牙周图表通常在页面顶部有标题/说明文字，这些应该被忽略。
+        实际的牙周数据区域在页面中间偏上（上半部分）和中间偏下（下半部分）。
         """
+        # 直接使用默认区域布局，因为OCR关键字检测不可靠
+        # 页面顶部的标题文字（如"菌斑指数"、"松动度"等）是表格说明，不是数据区域
+        logger.info("使用固定区域布局（忽略OCR关键字检测）")
+        return self._get_default_regions(img_w, img_h)
+
+        # 以下是保留的原始代码，但已被上面的直接返回禁用
         # 初始化上下半部分的区域
         regions = {
             'upper': {
@@ -178,23 +204,28 @@ class RegionDetector:
         upper_has_data = any(any(r['rows']) for r in regions['upper'].values())
         lower_has_data = any(any(r['rows']) for r in regions['lower'].values())
 
-        if not upper_has_data and not lower_has_data:
-            return self._get_default_regions(img_w, img_h)
-
         # 为每个区域计算边界框
+        # 优化：即使没有识别到关键字，也设置合理的默认区域
+        default_regions = self._get_default_regions(img_w, img_h)
+
         for part in ['upper', 'lower']:
             for region_name, region_data in regions[part].items():
                 if region_data['rows']:
+                    # 使用OCR识别到的位置
                     min_y = min(region_data['rows'])
                     max_y = max(region_data['rows'])
                     row_height = (max_y - min_y) / max(1, len(region_data['rows']))
-
-                    # 扩展Y范围以包含数据行（标题行下方约60像素）
-                    #牙周图表中，数据行通常在标题行下方
-                    data_row_height = 60  # 像素
-
+                    data_row_height = 60
                     region_data['bbox'] = [0, int(min_y - row_height), img_w, int(max_y + row_height + data_row_height)]
                     region_data['y_range'] = (int(min_y - row_height), int(max_y + row_height + data_row_height))
+                else:
+                    # OCR未识别到关键字，使用默认区域位置
+                    if part in default_regions and region_name in default_regions[part]:
+                        default_region = default_regions[part][region_name]
+                        region_data['bbox'] = default_region['bbox']
+                        region_data['y_range'] = default_region['y_range']
+                        # 保持空rows数组但标记使用了默认值
+                        region_data['using_default'] = True
 
         return regions
 
@@ -210,61 +241,90 @@ class RegionDetector:
         - 探诊深度 (PD)
         - --- 分隔线（牙位）---
         - 下半部分重复相同项目
+
+        基于实际图像(3072x4096)优化：
+        - 上半部分数据: y=1350-1600
+        - 分隔线: y=2000左右
+        - 下半部分数据: y=2050-2800
         """
 
         separator_y = h // 2
 
-        # 上半部分（上颌）
+        # 上半部分（上颌）- 优化后的区域范围
+        # 每个区域高度约50-60像素
+        # 实际OCR数据显示在 y=1350-1600
+        upper_start = int(h * 0.33)  # 从33%位置开始（约1350）
+        row_height = int(h * 0.015)  # 每行约1.5%的图像高度（约60像素）
+
         upper_regions = {
             'pi_region': {
                 'label': 'PI',
                 'type': 'roman',
-                'bbox': [0, int(h * 0.22), w, int(h * 0.26)],
-                'y_range': (int(h * 0.22), int(h * 0.26))
+                'bbox': [0, upper_start, w, upper_start + row_height],
+                'y_range': (upper_start, upper_start + row_height)
             },
             'mobility_region': {
                 'label': 'Mobility',
                 'type': 'roman',
-                'bbox': [0, int(h * 0.26), w, int(h * 0.29)],
-                'y_range': (int(h * 0.26), int(h * 0.29))
+                'bbox': [0, upper_start + row_height, w, upper_start + 2 * row_height],
+                'y_range': (upper_start + row_height, upper_start + 2 * row_height)
             },
             'furcation_region': {
                 'label': 'Furcation',
                 'type': 'roman',
-                'bbox': [0, int(h * 0.29), w, int(h * 0.34)],
-                'y_range': (int(h * 0.29), int(h * 0.34))
+                'bbox': [0, upper_start + 2 * row_height, w, upper_start + 3 * row_height],
+                'y_range': (upper_start + 2 * row_height, upper_start + 3 * row_height)
             },
             'bop_region': {
                 'label': 'BOP',
                 'type': 'symbol',
-                'bbox': [0, int(h * 0.34), w, int(h * 0.38)],
-                'y_range': (int(h * 0.34), int(h * 0.38))
+                'bbox': [0, upper_start + 3 * row_height, w, upper_start + 4 * row_height],
+                'y_range': (upper_start + 3 * row_height, upper_start + 4 * row_height)
             },
             'pd_region': {
                 'label': 'PD',
                 'type': 'number',
-                'bbox': [0, int(h * 0.38), w, int(h * 0.44)],
-                'y_range': (int(h * 0.38), int(h * 0.44))
+                'bbox': [0, upper_start + 4 * row_height, w, upper_start + 5 * row_height],
+                'y_range': (upper_start + 4 * row_height, upper_start + 5 * row_height)
             },
         }
 
-        # 下半部分（下颌）- 镜像上半部分的布局
-        lower_regions = {}
-        for region_name, region_data in upper_regions.items():
-            # 计算下半部分对应的Y范围
-            upper_y_min, upper_y_max = region_data['y_range']
-            upper_height = upper_y_max - upper_y_min
+        # 下半部分（下颌）- 从分隔线下方开始
+        # 下半部分数据在分隔线下方约50像素开始
+        lower_start = separator_y + int(h * 0.012)  # 分隔线下方约1.2%的位置（约50像素）
 
-            # 下半部分从分隔线开始向下延伸
-            lower_y_min = separator_y + (upper_y_min - int(h * 0.22))
-            lower_y_max = lower_y_min + upper_height
-
-            lower_regions[region_name] = {
-                'label': region_data['label'],
-                'type': region_data['type'],
-                'bbox': [0, lower_y_min, w, lower_y_max],
-                'y_range': (lower_y_min, lower_y_max)
-            }
+        lower_regions = {
+            'pi_region': {
+                'label': 'PI',
+                'type': 'roman',
+                'bbox': [0, lower_start, w, lower_start + row_height],
+                'y_range': (lower_start, lower_start + row_height)
+            },
+            'mobility_region': {
+                'label': 'Mobility',
+                'type': 'roman',
+                'bbox': [0, lower_start + row_height, w, lower_start + 2 * row_height],
+                'y_range': (lower_start + row_height, lower_start + 2 * row_height)
+            },
+            'furcation_region': {
+                'label': 'Furcation',
+                'type': 'roman',
+                'bbox': [0, lower_start + 2 * row_height, w, lower_start + 3 * row_height],
+                'y_range': (lower_start + 2 * row_height, lower_start + 3 * row_height)
+            },
+            'bop_region': {
+                'label': 'BOP',
+                'type': 'symbol',
+                'bbox': [0, lower_start + 3 * row_height, w, lower_start + 4 * row_height],
+                'y_range': (lower_start + 3 * row_height, lower_start + 4 * row_height)
+            },
+            'pd_region': {
+                'label': 'PD',
+                'type': 'number',
+                'bbox': [0, lower_start + 4 * row_height, w, lower_start + 5 * row_height],
+                'y_range': (lower_start + 4 * row_height, lower_start + 5 * row_height)
+            },
+        }
 
         return {
             'separator_y': separator_y,
@@ -309,6 +369,7 @@ class EnhancedPerioOCR:
             }
         """
         # 图像预处理（可选，默认禁用）
+        ocr_image_path = image_path  # 默认使用原始图像路径
         if enable_preprocessing:
             from .image_preprocessor import AdaptivePreprocessor
 
@@ -325,10 +386,12 @@ class EnhancedPerioOCR:
                 processed_img = preprocessor.preprocess(image_path, temp_path)
                 # 使用预处理后的图像进行OCR
                 img = processed_img
+                ocr_image_path = temp_path  # 区域检测也使用预处理后的图像
                 logger.info("图像预处理完成")
             except Exception as e:
                 logger.warning(f"图像预处理失败，使用原始图像: {e}")
                 img = cv2.imread(image_path)
+                ocr_image_path = image_path
                 if img is None:
                     raise ValueError(f"无法读取图像: {image_path}")
         else:
@@ -338,9 +401,9 @@ class EnhancedPerioOCR:
 
         h, w = img.shape[:2]
 
-        # 1. 检测不同数据类型的区域
+        # 1. 检测不同数据类型的区域（使用与OCR相同的图像）
         logger.info("检测数据类型区域...")
-        regions = self.region_detector.detect_regions(image_path)
+        regions = self.region_detector.detect_regions(ocr_image_path)
 
         # 2. 使用OCR识别整个图像
         logger.info("执行OCR识别...")
