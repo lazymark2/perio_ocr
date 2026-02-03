@@ -5,8 +5,7 @@
 
 支持的 OCR 模式:
 - auto: 自动选择最佳 OCR 方法
-- rapid: RapidTableOCR (TableStructureRec + RapidOCR)
-- enhanced: EnhancedPerioOCR (PaddleOCR + 后处理优化)
+- enhanced: EnhancedPerioOCR (PaddleOCR + 后处理优化) [推荐]
 - paddlex: PaddleXOCR (PaddleOCR PP-Structure)
 - modular: ModularOCR (PaddleOCR 独立模块)
 
@@ -18,7 +17,7 @@
     python main.py --image handwrite.jpg --output result.json
 
     # 选择 OCR 模式
-    python main.py --image handwrite.jpg --mode rapid
+    python main.py --image handwrite.jpg --mode enhanced
 
     # 调试模式
     python main.py --image handwrite.jpg --debug --visualize
@@ -64,7 +63,7 @@ class PerioOCR:
     """
 
     # 支持的 OCR 模式
-    MODES = ['auto', 'rapid', 'enhanced', 'paddlex', 'modular']
+    MODES = ['auto', 'enhanced', 'paddlex', 'modular']
 
     # 牙齿编号常量
     UPPER_TEETH_RIGHT = ['18', '17', '16', '15', '14', '13', '12', '11']
@@ -83,7 +82,7 @@ class PerioOCR:
         初始化 PerioOCR 系统
 
         Args:
-            mode: OCR 模式 ('auto', 'rapid', 'enhanced', 'paddlex', 'modular')
+            mode: OCR 模式 ('auto', 'enhanced', 'paddlex', 'modular')
             enable_preprocessing: 是否启用图像预处理
             enable_postprocess: 是否启用后处理优化
             debug: 调试模式
@@ -110,16 +109,7 @@ class PerioOCR:
 
         mode = self.mode if self.mode != 'auto' else self._auto_select_mode()
 
-        if mode == 'rapid':
-            try:
-                from ocr_system.rapid_table_ocr import RapidTableOCR
-                self._ocr_engine = RapidTableOCR(use_table_cls=True, use_cuda=False, device="cpu")
-                logger.info("使用 RapidTableOCR 模式")
-            except ImportError as e:
-                logger.warning(f"RapidTableOCR 不可用: {e}，切换到 enhanced 模式")
-                self._ocr_engine = self._init_enhanced_ocr()
-
-        elif mode == 'enhanced':
+        if mode == 'enhanced':
             self._ocr_engine = self._init_enhanced_ocr()
 
         elif mode == 'paddlex':
@@ -152,15 +142,7 @@ class PerioOCR:
 
     def _auto_select_mode(self) -> str:
         """自动选择最佳 OCR 模式"""
-        # 优先级: rapid > enhanced > paddlex
-        try:
-            import rapidocr
-            import wired_table_rec
-            import lineless_table_rec
-            return 'rapid'
-        except ImportError:
-            pass
-
+        # 优先级: enhanced > paddlex > modular
         try:
             from paddleocr import PaddleOCR
             return 'enhanced'
@@ -251,11 +233,7 @@ class PerioOCR:
 
         # 执行 OCR 识别
         try:
-            if self.mode == 'rapid' or (self.mode == 'auto' and hasattr(self._ocr_engine, 'process_periodontal_chart')):
-                raw_result = self._ocr_engine.process_periodontal_chart(processed_image_path)
-                result = self._normalize_rapid_result(raw_result)
-
-            elif self.mode == 'enhanced' or (self.mode == 'auto' and hasattr(self._ocr_engine, 'process')):
+            if self.mode == 'enhanced' or (self.mode == 'auto' and hasattr(self._ocr_engine, 'process')):
                 raw_result = self._ocr_engine.process(processed_image_path, enable_preprocessing=False)
                 result = self._normalize_enhanced_result(raw_result)
 
@@ -302,40 +280,6 @@ class PerioOCR:
 
         logger.info(f"处理完成，耗时: {processing_time:.2f}s")
         return result
-
-    def _normalize_rapid_result(self, raw_result: Dict) -> Dict:
-        """标准化 RapidTableOCR 结果"""
-        teeth_data = {}
-
-        # 从 raw_result 中提取牙齿数据
-        for key, value in raw_result.items():
-            if key.startswith(('pd_', 'gm_', 'bop_', 'pi_', 'mobility_', 'furcation_')):
-                # 解析键名，如: pd_11_b -> tooth=11, field=pd, surface=b
-                parts = key.split('_')
-                if len(parts) >= 3:
-                    tooth_num = parts[1]
-                    field_name = parts[0]
-
-                    if tooth_num not in teeth_data:
-                        teeth_data[tooth_num] = self._create_empty_tooth_data(tooth_num)
-
-                    # 设置值
-                    if field_name in ['pd', 'gm', 'bop', 'pi']:
-                        surface = parts[2] if len(parts) > 2 else 'b'
-                        if surface in teeth_data[tooth_num][field_name]:
-                            teeth_data[tooth_num][field_name][surface] = value
-                    elif field_name == 'mobility':
-                        teeth_data[tooth_num]['mobility'] = value
-                    elif field_name == 'furcation':
-                        teeth_data[tooth_num]['furcation'] = value
-
-        statistics = self._calculate_statistics(teeth_data)
-
-        return {
-            'teeth_data': teeth_data,
-            'statistics': statistics,
-            'raw_result': raw_result
-        }
 
     def _normalize_enhanced_result(self, raw_result: Dict) -> Dict:
         """标准化 EnhancedPerioOCR 结果"""
@@ -542,9 +486,9 @@ def main():
 
     parser.add_argument(
         '--mode', '-m',
-        choices=['auto', 'rapid', 'enhanced', 'paddlex', 'modular'],
-        default='auto',
-        help='OCR 模式 (默认: auto)'
+        choices=['auto', 'enhanced', 'paddlex', 'modular'],
+        default='enhanced',
+        help='OCR 模式 (默认: enhanced)'
     )
 
     parser.add_argument(
