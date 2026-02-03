@@ -1,0 +1,315 @@
+{
+  "teeth_data": {
+    "22": {
+      "tooth": 1,
+      "mobility": 0,
+      "furcation": 0,
+      "pd": {
+        "b": 2.0,
+        "l": 0
+      },
+      "gm": {
+        "b": 0,
+        "l": 0
+      },
+      "bop": {
+        "b": 0,
+        "l": 0
+      },
+      "pi": {
+        "b": 0,
+        "l": 0
+      }
+    },
+    "23": {
+      "tooth": 1,
+      "mobility": 0,
+      "furcation": 0,
+      "pd": {
+        "b": 2.0,
+        "l": 0
+      },
+      "gm": {
+        "b": 0,
+        "l": 0
+      },
+      "bop": {
+        "b": 0,
+        "l": 0
+      },
+      "pi": {
+        "b": 0,
+        "l": 0
+      }
+    },
+    "24": {
+      "tooth": 1,
+      "mobility": 0,
+      "furcation": 0,
+      "pd": {
+        "b": 7.0,
+        "l": 0
+      },
+      "gm": {
+        "b": 0,
+        "l": 0
+      },
+      "bop": {
+        "b": 0,
+        "l": 0
+      },
+      "pi": {
+        "b": 0,
+        "l": 0
+      }
+    },
+    "37": {
+      "tooth": 1,
+      "mobility": 1,
+      "furcation": 0,
+      "pd": {
+        "b": 0,
+        "l": 0
+      },
+      "gm": {
+        "b": 0,
+        "l": 0
+      },
+      "bop": {
+        "b": 0,
+        "l": 0
+      },
+      "pi": {
+        "b": 0,
+        "l": 0
+      }
+    },
+    "35": {
+      "tooth": 1,
+      "mobility": 1,
+      "furcation": 0,
+      "pd": {
+        "b": 0,
+        "l": 0
+      },
+      "gm": {
+        "b": 0,
+        "l": 0
+      },
+      "bop": {
+        "b": 0,
+        "l": 0
+      },
+      "pi": {
+        "b": 0,
+        "l": 0
+      }
+    },
+    "43": {
+      "tooth": 1,
+      "mobility": 1,
+      "furcation": 0,
+      "pd": {
+        "b": 0,
+        "l": 0
+      },
+      "gm": {
+        "b": 0,
+        "l": 0
+      },
+      "bop": {
+        "b": 0,
+        "l": 0
+      },
+      "pi": {
+        "b": 0,
+        "l": 0
+      }
+    },
+    "32": {
+      "tooth": 1,
+      "mobility": 0,
+      "furcation": 0,
+      "pd": {
+        "b": 0,
+        "l": 0
+      },
+      "gm": {
+        "b": 0,
+        "l": 0
+      },
+      "bop": {
+        "b": 2,
+        "l": 0
+      },
+      "pi": {
+        "b": 0,
+        "l": 0
+      }
+    }
+  },
+  "regions": {
+    "separator_y": 2048,
+    "upper": {
+      "pi_region": {
+        "label": "PI",
+        "type": "roman",
+        "bbox": [
+          0,
+          1200,
+          3072,
+          1353
+        ],
+        "y_range": [
+          1200,
+          1353
+        ]
+      },
+      "mobility_region": {
+        "label": "Mobility",
+        "type": "roman",
+        "bbox": [
+          0,
+          1353,
+          3072,
+          1506
+        ],
+        "y_range": [
+          1353,
+          1506
+        ]
+      },
+      "furcation_region": {
+        "label": "Furcation",
+        "type": "roman",
+        "bbox": [
+          0,
+          1506,
+          3072,
+          1659
+        ],
+        "y_range": [
+          1506,
+          1659
+        ]
+      },
+      "bop_region": {
+        "label": "BOP",
+        "type": "symbol",
+        "bbox": [
+          0,
+          1659,
+          3072,
+          1812
+        ],
+        "y_range": [
+          1659,
+          1812
+        ]
+      },
+      "pd_region": {
+        "label": "PD",
+        "type": "number",
+        "bbox": [
+          0,
+          1812,
+          3072,
+          1967
+        ],
+        "y_range": [
+          1812,
+          1967
+        ]
+      }
+    },
+    "lower": {
+      "pi_region": {
+        "label": "PI",
+        "type": "roman",
+        "bbox": [
+          0,
+          2097,
+          3072,
+          2237
+        ],
+        "y_range": [
+          2097,
+          2237
+        ]
+      },
+      "mobility_region": {
+        "label": "Mobility",
+        "type": "roman",
+        "bbox": [
+          0,
+          2237,
+          3072,
+          2377
+        ],
+        "y_range": [
+          2237,
+          2377
+        ]
+      },
+      "furcation_region": {
+        "label": "Furcation",
+        "type": "roman",
+        "bbox": [
+          0,
+          2377,
+          3072,
+          2517
+        ],
+        "y_range": [
+          2377,
+          2517
+        ]
+      },
+      "bop_region": {
+        "label": "BOP",
+        "type": "symbol",
+        "bbox": [
+          0,
+          2517,
+          3072,
+          2657
+        ],
+        "y_range": [
+          2517,
+          2657
+        ]
+      },
+      "pd_region": {
+        "label": "PD",
+        "type": "number",
+        "bbox": [
+          0,
+          2657,
+          3072,
+          2801
+        ],
+        "y_range": [
+          2657,
+          2801
+        ]
+      }
+    }
+  },
+  "statistics": {
+    "total_teeth": 7,
+    "teeth_with_pd": 3,
+    "teeth_with_bop": 1,
+    "teeth_with_pi": 0,
+    "teeth_with_furcation": 0,
+    "teeth_with_mobility": 3
+  },
+  "metadata": {
+    "processing_time": 73.63,
+    "method": "EnhancedPerioOCR",
+    "timestamp": "2026-02-03T14:21:41.091814",
+    "image_path": "handwrite.jpg",
+    "mode": "enhanced",
+    "preprocessing_enabled": false,
+    "postprocess_enabled": true
+  }
+}

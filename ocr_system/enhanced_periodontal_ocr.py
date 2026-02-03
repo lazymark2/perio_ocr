@@ -243,86 +243,95 @@ class RegionDetector:
         - 下半部分重复相同项目
 
         基于实际图像(3072x4096)优化：
-        - 上半部分数据: y=1350-1600
-        - 分隔线: y=2000左右
-        - 下半部分数据: y=2050-2800
+        - 上半部分数据: y=1280-1750（扩大范围）
+        - 分隔线: y=2048
+        - 下半部分数据: y=2090-2400
         """
 
         separator_y = h // 2
 
-        # 上半部分（上颌）- 优化后的区域范围
-        # 每个区域高度约50-60像素
-        # 实际OCR数据显示在 y=1350-1600
-        upper_start = int(h * 0.33)  # 从33%位置开始（约1350）
-        row_height = int(h * 0.015)  # 每行约1.5%的图像高度（约60像素）
+        # 简化的区域划分策略：使用更大的覆盖范围
+        # 上半部分：从y=1200到分隔线之前的所有内容
+        # 下半部分：从分隔线之后到y=2800的所有内容
+
+        # 上半部分（上颌）
+        upper_start = int(h * 0.293)  # 约1200
+        upper_data_region = separator_y - int(h * 0.02)  # 到分隔线之前约80像素
+
+        # 为上半部分创建5个区域，覆盖整个上半数据区域
+        upper_region_height = (upper_data_region - upper_start) // 5
 
         upper_regions = {
             'pi_region': {
                 'label': 'PI',
                 'type': 'roman',
-                'bbox': [0, upper_start, w, upper_start + row_height],
-                'y_range': (upper_start, upper_start + row_height)
+                'bbox': [0, upper_start, w, upper_start + upper_region_height],
+                'y_range': (upper_start, upper_start + upper_region_height)
             },
             'mobility_region': {
                 'label': 'Mobility',
                 'type': 'roman',
-                'bbox': [0, upper_start + row_height, w, upper_start + 2 * row_height],
-                'y_range': (upper_start + row_height, upper_start + 2 * row_height)
+                'bbox': [0, upper_start + upper_region_height, w, upper_start + 2 * upper_region_height],
+                'y_range': (upper_start + upper_region_height, upper_start + 2 * upper_region_height)
             },
             'furcation_region': {
                 'label': 'Furcation',
                 'type': 'roman',
-                'bbox': [0, upper_start + 2 * row_height, w, upper_start + 3 * row_height],
-                'y_range': (upper_start + 2 * row_height, upper_start + 3 * row_height)
+                'bbox': [0, upper_start + 2 * upper_region_height, w, upper_start + 3 * upper_region_height],
+                'y_range': (upper_start + 2 * upper_region_height, upper_start + 3 * upper_region_height)
             },
             'bop_region': {
                 'label': 'BOP',
                 'type': 'symbol',
-                'bbox': [0, upper_start + 3 * row_height, w, upper_start + 4 * row_height],
-                'y_range': (upper_start + 3 * row_height, upper_start + 4 * row_height)
+                'bbox': [0, upper_start + 3 * upper_region_height, w, upper_start + 4 * upper_region_height],
+                'y_range': (upper_start + 3 * upper_region_height, upper_start + 4 * upper_region_height)
             },
             'pd_region': {
                 'label': 'PD',
                 'type': 'number',
-                'bbox': [0, upper_start + 4 * row_height, w, upper_start + 5 * row_height],
-                'y_range': (upper_start + 4 * row_height, upper_start + 5 * row_height)
+                'bbox': [0, upper_start + 4 * upper_region_height, w, upper_data_region],
+                'y_range': (upper_start + 4 * upper_region_height, upper_data_region)
             },
         }
 
         # 下半部分（下颌）- 从分隔线下方开始
-        # 下半部分数据在分隔线下方约50像素开始
-        lower_start = separator_y + int(h * 0.012)  # 分隔线下方约1.2%的位置（约50像素）
+        # 扩大覆盖范围到y=2800
+        lower_start = separator_y + int(h * 0.012)  # 分隔线下方约50像素
+        lower_end = int(h * 0.684)  # 约2800
+
+        # 为下半部分创建5个区域，覆盖整个下半数据区域
+        lower_region_height = (lower_end - lower_start) // 5
 
         lower_regions = {
             'pi_region': {
                 'label': 'PI',
                 'type': 'roman',
-                'bbox': [0, lower_start, w, lower_start + row_height],
-                'y_range': (lower_start, lower_start + row_height)
+                'bbox': [0, lower_start, w, lower_start + lower_region_height],
+                'y_range': (lower_start, lower_start + lower_region_height)
             },
             'mobility_region': {
                 'label': 'Mobility',
                 'type': 'roman',
-                'bbox': [0, lower_start + row_height, w, lower_start + 2 * row_height],
-                'y_range': (lower_start + row_height, lower_start + 2 * row_height)
+                'bbox': [0, lower_start + lower_region_height, w, lower_start + 2 * lower_region_height],
+                'y_range': (lower_start + lower_region_height, lower_start + 2 * lower_region_height)
             },
             'furcation_region': {
                 'label': 'Furcation',
                 'type': 'roman',
-                'bbox': [0, lower_start + 2 * row_height, w, lower_start + 3 * row_height],
-                'y_range': (lower_start + 2 * row_height, lower_start + 3 * row_height)
+                'bbox': [0, lower_start + 2 * lower_region_height, w, lower_start + 3 * lower_region_height],
+                'y_range': (lower_start + 2 * lower_region_height, lower_start + 3 * lower_region_height)
             },
             'bop_region': {
                 'label': 'BOP',
                 'type': 'symbol',
-                'bbox': [0, lower_start + 3 * row_height, w, lower_start + 4 * row_height],
-                'y_range': (lower_start + 3 * row_height, lower_start + 4 * row_height)
+                'bbox': [0, lower_start + 3 * lower_region_height, w, lower_start + 4 * lower_region_height],
+                'y_range': (lower_start + 3 * lower_region_height, lower_start + 4 * lower_region_height)
             },
             'pd_region': {
                 'label': 'PD',
                 'type': 'number',
-                'bbox': [0, lower_start + 4 * row_height, w, lower_start + 5 * row_height],
-                'y_range': (lower_start + 4 * row_height, lower_start + 5 * row_height)
+                'bbox': [0, lower_start + 4 * lower_region_height, w, lower_end],
+                'y_range': (lower_start + 4 * lower_region_height, lower_end)
             },
         }
 
